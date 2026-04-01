@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kon Gaan? — Identify Music in Any Video</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Background noise texture via CSS -->
+  <div class="bg-grid"></div>
+
+  <div class="app">
+
+    <!-- ── Header ──────────────────────────────── -->
+    <header class="header">
+      <div class="logo">
+        <div class="logo-icon">
+          <span class="bar b1"></span>
+          <span class="bar b2"></span>
+          <span class="bar b3"></span>
+          <span class="bar b4"></span>
+          <span class="bar b5"></span>
+        </div>
+        <span class="logo-text">Kon Gaan?</span>
+      </div>
+      <p class="tagline">Paste any social video link — we'll find the music.</p>
+    </header>
+
+    <!-- ── Supported Platforms ─────────────────── -->
+    <div class="platforms">
+      <span class="platform-tag">YouTube</span>
+      <span class="platform-tag">Instagram</span>
+      <span class="platform-tag">Facebook</span>
+      <span class="platform-tag">TikTok</span>
+      <span class="platform-tag">Twitter/X</span>
+      <span class="platform-tag">Vimeo</span>
+      <span class="platform-tag">+ 1000 more</span>
+    </div>
+
+    <!-- ── Input Card ───────────────────────────── -->
+    <div class="input-card">
+      <div class="input-row">
+        <div class="url-field-wrap">
+          <svg class="field-icon" viewBox="0 0 20 20" fill="none">
+            <path d="M12.5 7.5L7.5 12.5M8.75 5.625L9.375 5C10.756 3.619 12.994 3.619 14.375 5C15.756 6.381 15.756 8.619 14.375 10L13.75 10.625M11.25 14.375L10.625 15C9.244 16.381 7.006 16.381 5.625 15C4.244 13.619 4.244 11.381 5.625 10L6.25 9.375" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+          <input
+            type="url"
+            id="url-input"
+            placeholder="https://www.youtube.com/watch?v=..."
+            autocomplete="off"
+            spellcheck="false"
+          />
+          <button class="clear-btn" id="clear-btn" aria-label="Clear" style="display:none">
+            <svg viewBox="0 0 16 16" fill="none"><path d="M4 4L12 12M12 4L4 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          </button>
+        </div>
+        <button class="sniff-btn" id="sniff-btn">
+          <span class="sniff-btn-text">Khujo</span>
+          <svg class="sniff-btn-icon" viewBox="0 0 20 20" fill="none">
+            <circle cx="10" cy="10" r="3" fill="currentColor"/>
+            <path d="M10 3C10 3 6 6 6 10C6 14 10 17 10 17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity="0.5"/>
+            <path d="M10 3C10 3 14 6 14 10C14 14 10 17 10 17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity="0.5"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Progress stages -->
+      <div class="progress-area" id="progress-area" style="display:none">
+        <div class="stage-track">
+          <div class="stage" id="stage-extract">
+            <div class="stage-dot"></div>
+            <span>Extracting audio</span>
+          </div>
+          <div class="stage-line"></div>
+          <div class="stage" id="stage-analyze">
+            <div class="stage-dot"></div>
+            <span>Analyzing clip</span>
+          </div>
+          <div class="stage-line"></div>
+          <div class="stage" id="stage-match">
+            <div class="stage-dot"></div>
+            <span>Matching music</span>
+          </div>
+        </div>
+        <p class="progress-note" id="progress-note">This can take 20–40 seconds…</p>
+      </div>
+    </div>
+
+    <!-- ── Result Card ──────────────────────────── -->
+    <div class="result-area" id="result-area" style="display:none">
+
+      <!-- Found -->
+      <div class="result-card" id="result-found" style="display:none">
+        <div class="result-artwork-wrap">
+          <img class="result-artwork" id="result-artwork" src="" alt="Album art" />
+          <div class="result-artwork-glow" id="artwork-glow"></div>
+        </div>
+        <div class="result-info">
+          <div class="result-badge">
+            <svg viewBox="0 0 16 16" fill="none"><path d="M2 8.5L6 12.5L14 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Music identified
+          </div>
+          <h2 class="result-title" id="result-title">—</h2>
+          <p class="result-artist" id="result-artist">—</p>
+          <p class="result-album" id="result-album"></p>
+          <div class="result-meta" id="result-meta"></div>
+          <div class="result-links" id="result-links"></div>
+        </div>
+      </div>
+
+      <!-- Not found -->
+      <div class="result-card result-card--empty" id="result-notfound" style="display:none">
+        <div class="empty-icon">
+          <svg viewBox="0 0 48 48" fill="none">
+            <circle cx="24" cy="24" r="20" stroke="currentColor" stroke-width="1.5" opacity="0.3"/>
+            <path d="M24 14V26M24 32V34" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <p class="empty-title">No music detected</p>
+        <p class="empty-sub">The video may not contain recognisable music, or the audio was too short/quiet. Try a different timestamp or a different video.</p>
+      </div>
+
+      <!-- Error -->
+      <div class="result-card result-card--error" id="result-error" style="display:none">
+        <div class="empty-icon">
+          <svg viewBox="0 0 48 48" fill="none">
+            <path d="M24 6L44 42H4L24 6Z" stroke="currentColor" stroke-width="1.5" opacity="0.4"/>
+            <path d="M24 20V30M24 36V38" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <p class="empty-title">Something went wrong</p>
+        <p class="empty-sub" id="error-message">An unexpected error occurred.</p>
+      </div>
+
+    </div>
+
+    <!-- ── Try Again ────────────────────────────── -->
+    <div id="try-again-wrap" style="display:none">
+      <button class="try-again-btn" id="try-again-btn">Try another link</button>
+    </div>
+
+    <!-- ── Footer ──────────────────────────────── -->
+    <footer class="footer">
+      Powered by <a href="https://yt-dlp.github.io/yt-dlp-nightly-builds/" target="_blank">yt-dlp</a> &amp;
+      <a href="https://audd.io" target="_blank">AudD Music Recognition</a>
+    </footer>
+    <footer class="footer" style="margin-top: -16px;">
+      Built with ❤️ by <a href="https://www.linkedin.com/in/rafid-a-prince-5a8b29364/" target="_blank">Rafid A. Prince</a>
+    </footer>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
