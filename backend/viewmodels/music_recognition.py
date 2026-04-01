@@ -20,18 +20,25 @@ class MusicRecognitionViewModel:
         
         output_tmpl = os.path.join(tempfile.gettempdir(), f"{temp_id}.%(ext)s")
         
+        # Resolve project root to locate cookies.txt
+        project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+        cookies_path = os.path.join(project_root, "cookies.txt")
+        
         # yt-dlp arguments
         cmd = [
             "yt-dlp",
-            # Get best audio format available
             "-f", "bestaudio/best",
-            # We don't force -x (extract audio) strictly if ffmpeg is missing, 
-            # but it's okay, AudD can often parse mp4 audio too. Let's just download it directly.
-            # Limit download size if possible using max-filesize to save logic.
             "--max-filesize", "20M",
             "--output", output_tmpl,
-            url
         ]
+        
+        if os.path.exists(cookies_path):
+            cmd.extend(["--cookies", cookies_path])
+        else:
+            # Attempt an alternative player to avoid some bot checks without cookies
+            cmd.extend(["--extractor-args", "youtube:player_client=android,web"])
+            
+        cmd.append(url)
         
         file_path = None
         try:
